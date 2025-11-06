@@ -1,0 +1,45 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Metro
+.expo/
+.expo-shared/
+
+# Android
+/android/.gradle/
+/android/app/build/
+/android/build/
+/android/.idea/
+/android/local.properties
+*.apk
+*.keystore
+
+# iOS
+/ios/Pods/
+/ios/build/
+/ios/DerivedData/
+/ios/*.xcworkspace
+*.xcuserstate
+*.xcuserdatad
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# VSCode
+.vscode/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Others
+*.swp
+.idea/
