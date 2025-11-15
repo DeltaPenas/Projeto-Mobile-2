@@ -19,6 +19,11 @@ app.get('/', (req, res) => {
 
 const usuariosRouter = require('./routes/usuarios');
 app.use('/usuarios', usuariosRouter);
+const projetosRouter = require('./routes/projetos');
+app.use('/projetos', projetosRouter )
+const tarefasRouter = require('./routes/tarefas');
+app.use('/tarefas', tarefasRouter)
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

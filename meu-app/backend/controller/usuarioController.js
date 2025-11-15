@@ -4,7 +4,12 @@ module.exports = {
 
     async criar(req, res){
         try{
-            const usuario = await Usuario.create(req.body);
+            const usuario = await Usuario.create({
+                nome: req.body.nome,
+                email: req.body.email,
+                senha: req.body.senha
+
+            })
             res.status(201).json(usuario);
         } catch (err){
             res.status(400).json({erro: err.message})
@@ -47,7 +52,7 @@ module.exports = {
     },
     async deletar(req, res){
         try{
-            const usuario = Usuario.findByIdAndDelete(req.params.id);
+            const usuario = await Usuario.findByIdAndDelete(req.params.id);
             if(!usuario){
                 return res.status(404).json({erro: "usuario não encontrado dog"});
 

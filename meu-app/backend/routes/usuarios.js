@@ -4,8 +4,8 @@ const usuarioController = require('../controller/usuarioController');
 
 router.post('/', usuarioController.criar);
 router.get('/', usuarioController.listar);
-router.get('/', usuarioController.buscarPorId);
-router.put('/', usuarioController.atualizar);
-router.delete('/', usuarioController.deletar);
+router.get('/:id', usuarioController.buscarPorId);
+router.put('/:id', usuarioController.atualizar);
+router.delete('/:id', usuarioController.deletar);
 
 module.exports = router;
