@@ -4,15 +4,14 @@ module.exports = {
 
     async criar(req, res){
         try{
-            if (!req.body.projetoId){
-                return res.status(400).json({erro: "Necessario o id de um projeto"});
-            }
+            
+            const projetoId = req.body.projetoId;
 
             const tarefa = await Tarefa.create({
                 nome: req.body.nome,
                 descricao: req.body.descricao, 
                 concluido: req.body.concluido,
-                projeto: req.body.projetoId
+                projeto: projetoId 
             });
 
             return res.status(201).json(tarefa);
@@ -88,3 +87,5 @@ module.exports = {
         }
     }
 };
+
+

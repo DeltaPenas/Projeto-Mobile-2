@@ -1,20 +1,58 @@
-POST /usuarios
-{
-  "nome": "João",
-  "email": "joao@email.com",
-  "senha": "123456"
-}
+Manual de Endpoints da API (Resumo)
 
-GET /usuarios: http://localhost:3001/usuarios
+Usuários
 
-GET /usuarios/:id http://localhost:3001/usuarios/6737cbf4ef23234aaba
+Criar usuário
 
-PUT /usuarios/:id 
-{
-  "nome": "fulano Atualizado",
-  "email": "novo@email.com"
-}
+POST /usuarios Body (JSON): { “nome”: “João”, “email”:
+“email@email.com”, “senha”: “123456” }
+
+Login
+
+POST /usuarios/login Body (JSON): { “email”: “email@email.com”, “senha”:
+“123456” } Retorno: token JWT
+
+Listar todos os usuários
+
+GET /usuarios
+
+Buscar usuário por ID
+
+GET /usuarios/:id
+
+Atualizar usuário
+
+PUT /usuarios/:id
+
+Deletar usuário
 
 DELETE /usuarios/:id
 
-http://localhost:3001/usuarios/6737cbf4..
+Projetos (Requer Token JWT)
+
+Enviar no Header: Authorization: Bearer SEU_TOKEN_AQUI
+
+Criar projeto
+
+POST /projetos Body (JSON): { “titulo”: “Meu Projeto”, “descricao”:
+“Alguma descrição” }
+
+Listar projetos do usuário logado
+
+GET /projetos
+
+Buscar projeto por ID
+
+GET /projetos/:id
+
+Atualizar projeto
+
+PUT /projetos/:id
+
+Deletar projeto
+
+DELETE /projetos/:id
+
+Tarefas (Requer Token)
+
+Mesmo padrão dos projetos.

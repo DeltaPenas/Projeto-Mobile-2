@@ -3,11 +3,12 @@ const router = express.Router();
 const tarefaController = require('../controller/tarefaController');
 const auth = require('../middleware/auth');
 
-router.post('/', tarefaController.criar);
-router.get('/', tarefaController.listarPorIdProjeto);
-router.get('/:id', tarefaController.buscarPorId);
-router.put('/:id', tarefaController.atualizar);
-router.delete('/:id', tarefaController.deletar);
+router.post('/',auth, tarefaController.criar);
+router.get('/',auth, tarefaController.listar);
+router.get('/:id',auth, tarefaController.listarPorIdProjeto);
+router.get('/:id',auth, tarefaController.buscarPorId);
+router.put('/:id',auth, tarefaController.atualizar);
+router.delete('/:id',auth, tarefaController.deletar);
 
 
 module.exports = router;

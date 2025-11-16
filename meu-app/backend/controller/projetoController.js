@@ -6,15 +6,13 @@ module.exports = {
     async criar(req, res){
         
         try{
-            if (!req.body.usuarioId) {
-            return res.status(400).json({ erro: "usuarioId é obrigatório" });
-            }
+            const usuarioId = req.usuarioId
 
             const projeto = await Projeto.create({
                 nome: req.body.nome,
                 descricao: req.body.descricao,
                 concluido: req.body.concluido,
-                usuario: req.body.usuarioId
+                usuario: usuarioId
             });
             
             return res.status(201).json(projeto);
