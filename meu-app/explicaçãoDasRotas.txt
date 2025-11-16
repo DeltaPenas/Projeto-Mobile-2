@@ -1,0 +1,20 @@
+POST /usuarios
+{
+  "nome": "João",
+  "email": "joao@email.com",
+  "senha": "123456"
+}
+
+GET /usuarios: http://localhost:3001/usuarios
+
+GET /usuarios/:id http://localhost:3001/usuarios/6737cbf4ef23234aaba
+
+PUT /usuarios/:id 
+{
+  "nome": "fulano Atualizado",
+  "email": "novo@email.com"
+}
+
+DELETE /usuarios/:id
+
+http://localhost:3001/usuarios/6737cbf4..
