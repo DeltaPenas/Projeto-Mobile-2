@@ -1,5 +1,6 @@
 const Usuario = require('../models/Usuario');
 const jwt = require('jsonwebtoken');
+const authMiddleware = require('../middleware/auth');
 
 module.exports = {
 
@@ -103,5 +104,23 @@ module.exports = {
         console.error(err);
         return res.status(500).json({ erro: err.message });
     }
-}
+},
+    async getDadosUsuario(req, res){
+        try{
+        const userId = req.usuarioId;
+        const usuario = await Usuario.findById(userId).select('-senha');
+        
+        if(!usuario){
+            return res.status(404).json({erro: "Usuario não encontrado"})
+        }
+        return res.status(200).json(usuario);
+
+        }catch(error){
+            res.status(500).json({erro : "Erro ao buscar os dados do usuario"});
+        }
+
+    }
+
+
+
 }

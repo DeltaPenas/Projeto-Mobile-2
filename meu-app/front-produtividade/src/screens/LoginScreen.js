@@ -1,35 +1,35 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from "expo-router"; 
+import api from '../api/api'; 
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const router = useRouter();
 
   async function handleLogin() {
     try {
-      const res = await fetch("http://10.0.2.2:3001/usuarios/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha })
+      const response = await api.post("/usuarios/login", { 
+        email, 
+        senha 
       });
 
-      const data = await res.json();
+      const { token } = response.data;
+      await AsyncStorage.setItem('userToken', token);
 
-      if (!res.ok) {
-        alert(data.message || "Erro ao fazer login");
-        return;
-      }
+      const userResponse = await api.get('/usuarios/me');
+      const userName = userResponse.data.nome;
 
-      alert("Login realizado com sucesso!");
-      console.log("TOKEN:", data.token);
+      await AsyncStorage.setItem("userName", userName);
 
-      global.usuarioToken = data.token;
-
-      // depois colocamos a navegação para a Home
-      // navigation.navigate("Home");
-
+      router.replace("/home"); 
+      
     } catch (error) {
-      alert("Erro ao conectar com o servidor");
+      console.error(error);
+      const mensagem = error.response?.data?.message || "Erro ao conectar com o servidor";
+      Alert.alert("Erro no Login", mensagem);
     }
   }
 
@@ -40,6 +40,8 @@ export default function LoginScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="E-mail"
+        autoCapitalize="none" 
+        keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
       />
@@ -56,7 +58,8 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+      
+      <TouchableOpacity onPress={() => router.push("/register")}>
         <Text style={styles.link}>Criar conta</Text>
       </TouchableOpacity>
     </View>
@@ -64,14 +67,15 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: "center" },
-  title: { fontSize: 28, fontWeight: "bold", marginBottom: 24 },
+  container: { flex: 1, padding: 24, justifyContent: "center", backgroundColor: "#ffffffff" },
+  title: { fontSize: 28, fontWeight: "bold", marginBottom: 24, textAlign: "center" },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
+    fontSize: 16
   },
   button: {
     backgroundColor: "#007BFF",
@@ -80,6 +84,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     alignItems: "center",
   },
-  buttonText: { color: "#fff", fontSize: 16 },
-  link: { marginTop: 16, textAlign: "center", color: "#007BFF" }
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  link: { marginTop: 16, textAlign: "center", color: "#007BFF", fontSize: 16 }
 });

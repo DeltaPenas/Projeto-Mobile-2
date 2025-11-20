@@ -21,13 +21,13 @@ module.exports = {
         }
     },
 
-    // 🔥 Lista apenas os projetos do usuário logado
+
     async listar(req, res) {
         try {
             const usuarioId = req.usuarioId;
             const filtro = { usuario: usuarioId };
 
-            // Filtro opcional (ex: ?concluido=true)
+            
             if (req.query.concluido !== undefined) {
                 filtro.concluido = req.query.concluido === "true";
             }
@@ -40,7 +40,7 @@ module.exports = {
         }
     },
 
-    // 🔥 Rota dedicada para retornar projetos do usuário logado
+    //listar por usuario logado
     async listarPorUsuarioLogado(req, res) {
         try {
             const usuarioId = req.usuarioId;
