@@ -58,9 +58,13 @@ export default function LoginScreen() {
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-      
       <TouchableOpacity onPress={() => router.push("/register")}>
         <Text style={styles.link}>Criar conta</Text>
+      </TouchableOpacity>
+
+      {/* Botão de recuperar senha */}
+      <TouchableOpacity onPress={() => router.push("/recover")}>
+        <Text style={styles.link}>Recuperar Senha</Text>
       </TouchableOpacity>
     </View>
   );

@@ -10,5 +10,6 @@ router.get('/:id',auth, usuarioController.buscarPorId);
 router.put('/:id',auth, usuarioController.atualizar);
 router.delete('/:id',auth, usuarioController.deletar);
 router.post('/login', usuarioController.login);
+router.post("/recuperar", usuarioController.recuperarSenha);
 
 module.exports = router;

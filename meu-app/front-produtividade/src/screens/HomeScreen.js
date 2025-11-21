@@ -14,6 +14,10 @@ export default function HomeScreen() {
       <TouchableOpacity style={styles.button} onPress={() => router.push('/projetos')}>
               <Text style={styles.buttonText}>Projetos</Text>
         </TouchableOpacity>
+        {/*botão para tela de opções*/}
+        <TouchableOpacity onPress={() => router.push("/options")}>
+              <Text style={styles.link}>Opções</Text>
+          </TouchableOpacity>
 
     </View>
 
