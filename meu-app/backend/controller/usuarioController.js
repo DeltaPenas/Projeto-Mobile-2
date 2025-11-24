@@ -133,52 +133,51 @@ module.exports = {
     },
 
     async recuperarSenha(req, res) {
-        const { email } = req.body;
+    const { email } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ message: "E-mail é obrigatório." });
+    if (!email) {
+        return res.status(400).json({ message: "E-mail é obrigatório." });
+    }
+
+    try {
+        const usuario = await Usuario.findOne({ email });
+
+        if (!usuario) {
+            return res.status(404).json({ message: "Usuário não encontrado." });
         }
 
-        try {
-            const usuario = await Usuario.findOne({ email });
+        // Gera código de 6 dígitos
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-            if (!usuario) {
-                return res.status(404).json({ message: "Usuário não encontrado." });
+        // Salva temporário no resetTokens
+        resetTokens[email] = codigo;
+
+        
+        const transporter = nodemailer.createTransport({
+            service: process.env.MAIL_SERVICE,
+            auth: {
+                user: process.env.MAIL_USER,
+                pass: process.env.MAIL_PASS
             }
+        });
 
-            
-            const codigo = (crypto.randomInt(0, 1000000) + 1000000).toString().slice(1);
-
-            const expira = Date.now() + CODE_EXPIRATION_MINUTES * 60 * 1000;
-
-            resetTokens.set(email, { codigo, expira, validated: false });
-
-            // Configura nodemailer
-            const transporter = nodemailer.createTransport({
-                service: process.env.MAIL_SERVICE,
-                auth: {
-                    user: process.env.MAIL_USER,
-                    pass: process.env.MAIL_PASS
-                }
-            });
-
-            await transporter.sendMail({
-                from: "Seu App <no-reply@seuapp.com>",
-                to: email,
-                subject: "Código de Recuperação",
-                html: `
-                <h2>Seu código de recuperação</h2>
+        await transporter.sendMail({
+            from: "Projeto Mobile <no-reply@seuapp.com>",
+            to: email,
+            subject: "Código de recuperação de senha",
+            html: `
+                <h2>Recuperação de senha</h2>
                 <p>Use o código abaixo para redefinir sua senha:</p>
                 <h1 style="font-size: 32px;">${codigo}</h1>
-                <p>O código expira em ${CODE_EXPIRATION_MINUTES} minutos.</p>
-                `
-            });
+                <p>O código expira em alguns minutos.</p>
+            `
+        });
 
-            res.json({ message: "Código enviado para o seu e-mail." });
+        res.json({ message: "Código enviado para o e-mail informado." });
 
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: "Erro ao enviar e-mail." });
+        console.error(error);
+        res.status(500).json({ message: "Erro ao enviar e-mail." });
         }
     },
 

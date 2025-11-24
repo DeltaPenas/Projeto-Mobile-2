@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api from "../api/api";
 
-
 export default function RecoverScreen({ navigation }) {
   const [email, setEmail] = useState("");
+  const [codigo, setCodigo] = useState("");
 
   async function enviarRecuperacao() {
     if (!email) {
@@ -17,9 +17,8 @@ export default function RecoverScreen({ navigation }) {
 
       Alert.alert(
         "Sucesso",
-        response.data.message || "Um link foi enviado para seu e-mail!"
+        response.data.message || "O código foi enviado para seu e-mail!"
       );
-
 
     } catch (error) {
       console.error(error);
@@ -29,12 +28,35 @@ export default function RecoverScreen({ navigation }) {
     }
   }
 
+  async function validarCodigo() {
+    if (!codigo) {
+      Alert.alert("Erro", "Digite o código recebido.");
+      return;
+    }
+
+    try {
+      const response = await api.post("/usuarios/validar-codigo", {
+        email,
+        codigo
+      });
+
+      Alert.alert("Sucesso", "Código validado!");
+
+      navigation.navigate("NovaSenhaScreen", { email });
+
+    } catch (error) {
+      console.error(error);
+      const msg = error.response?.data?.message || "Código inválido.";
+      Alert.alert("Erro", msg);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Recuperar Senha</Text>
 
       <Text style={styles.sub}>
-        Digite seu e-mail para receber o codigo de recuperação.
+        Digite seu e-mail para receber o código de recuperação.
       </Text>
 
       <TextInput
@@ -45,23 +67,27 @@ export default function RecoverScreen({ navigation }) {
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Codigo de recuperação"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      
 
       <TouchableOpacity style={styles.button} onPress={enviarRecuperacao}>
-        <Text style={styles.buttonText}>Enviar</Text>
+        <Text style={styles.buttonText}>Enviar código</Text>
+      </TouchableOpacity>
+
+      {/* Campo de código */}
+      <TextInput
+        style={styles.input}
+        placeholder="Código enviado por e-mail"
+        value={codigo}
+        onChangeText={setCodigo}
+        keyboardType="numeric"
+      />
+
+      <TouchableOpacity style={styles.button} onPress={validarCodigo}>
+        <Text style={styles.buttonText}>Validar código</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Home")} 
+        onPress={() => navigation.navigate("Home")}
       >
         <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>
