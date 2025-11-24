@@ -47,11 +47,10 @@ export default function ProjetosScreen() {
         }
     }
     
-    // 💡 FUNÇÃO HANDLE LOGOUT ADICIONADA AQUI!
+    
     async function handleLogout() {
         await AsyncStorage.removeItem('userToken');
         await AsyncStorage.removeItem('userName');
-        // Redireciona para a tela inicial (Login)
         router.replace('/'); 
     }
 
@@ -67,7 +66,7 @@ export default function ProjetosScreen() {
 
     return (
         <View style={styles.container}>
-            {/* ... (renderização da UI) ... */}
+            
             <View style={styles.header}>
                 <Text style={styles.title}>Olá, {userName}!</Text> 
                 
@@ -78,9 +77,9 @@ export default function ProjetosScreen() {
             
             <Text style={styles.subtitle}>Seus Projetos Ativos</Text>
             
-            {/* Adicionando a FlatList para completar a renderização */}
+            
             {projetos.length === 0 ? (
-                <Text style={styles.emptyText}>Nenhum projeto encontrado. Crie um!</Text>
+                <Text style={styles.emptyText}>Nenhum projeto encontrado, Mãos na massa!</Text>
             ) : (
                 <FlatList
                     data={projetos}

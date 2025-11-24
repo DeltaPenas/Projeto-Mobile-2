@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api from "../api/api";
 
+
 export default function RecoverScreen({ navigation }) {
   const [email, setEmail] = useState("");
 
@@ -19,7 +20,6 @@ export default function RecoverScreen({ navigation }) {
         response.data.message || "Um link foi enviado para seu e-mail!"
       );
 
-      navigation.goBack(); // volta para Login
 
     } catch (error) {
       console.error(error);
@@ -34,7 +34,7 @@ export default function RecoverScreen({ navigation }) {
       <Text style={styles.title}>Recuperar Senha</Text>
 
       <Text style={styles.sub}>
-        Digite seu e-mail para receber um link de redefinição.
+        Digite seu e-mail para receber o codigo de recuperação.
       </Text>
 
       <TextInput
@@ -45,13 +45,25 @@ export default function RecoverScreen({ navigation }) {
         autoCapitalize="none"
         keyboardType="email-address"
       />
+      <TextInput
+        style={styles.input}
+        placeholder="Codigo de recuperação"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      
 
       <TouchableOpacity style={styles.button} onPress={enviarRecuperacao}>
         <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.link}>Voltar</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Home")} 
+      >
+        <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>
     </View>
   );

@@ -4,15 +4,16 @@ const authMiddleware = require('../middleware/auth');
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-// Armazena temporariamente os tokens de redefinição 
-let resetTokens = {};
+// ARMAZENAMENTO TEMPORÁRIO DOS CÓDIGOS
+const resetTokens = new Map();
+const CODE_EXPIRATION_MINUTES = parseInt(process.env.CODE_EXPIRATION_MINUTES || '10', 10);
 
 module.exports = {
 
     async criar(req, res){
         try{
             if (!req.body.nome || !req.body.email || !req.body.senha)  {
-            return res.status(400).json({ erro: "nome, email e senha são obrigatórios" });
+                return res.status(400).json({ erro: "nome, email e senha são obrigatórios" });
             }
 
             const usuario = await Usuario.create({
@@ -24,9 +25,9 @@ module.exports = {
             res.status(201).json(usuario);
         } catch (err){
             if (err.code === 11000) {
-                 return res.status(400).json({ erro: 'Email já cadastrado' });
+                return res.status(400).json({ erro: 'Email já cadastrado' });
             }
-            res.status(400).json({erro: err.message})
+            res.status(400).json({erro: err.message});
         }
     },
 
@@ -46,8 +47,8 @@ module.exports = {
                 return res.status(404).json({ erro: "Usuário não encontrado" });
             }
             res.json(usuario);
-        }catch(err){
-        res.status(400).json({erro: "id invalido"});
+        } catch(err){
+            res.status(400).json({erro: "id invalido"});
         }
     },
 
@@ -62,7 +63,7 @@ module.exports = {
                 return res.status(404).json({erro: "Usuario não encontrado"});
             }
             res.json(usuario);
-        }catch(err){
+        } catch(err){
             res.status(400).json({ erro: err.message });
         }
     },
@@ -74,10 +75,11 @@ module.exports = {
                 return res.status(404).json({erro: "usuario não encontrado"});
             }
             res.json({mensagem: "usuario deletado"});
-        }catch(err){
+        } catch(err){
             res.status(400).json({erro: err.message});
         }
     },
+
 
     async login(req, res) {
         try {
@@ -115,21 +117,20 @@ module.exports = {
     },
 
     async getDadosUsuario(req, res){
-        try{
+        try {
             const userId = req.usuarioId;
             const usuario = await Usuario.findById(userId).select('-senha');
             
             if(!usuario){
                 return res.status(404).json({erro: "Usuario não encontrado"});
             }
+
             return res.status(200).json(usuario);
 
-        }catch(error){
+        } catch(error){
             res.status(500).json({erro : "Erro ao buscar os dados do usuario"});
         }
     },
-
-    //Recuperar senha
 
     async recuperarSenha(req, res) {
         const { email } = req.body;
@@ -145,35 +146,35 @@ module.exports = {
                 return res.status(404).json({ message: "Usuário não encontrado." });
             }
 
-            // Gera token seguro
-            const token = crypto.randomBytes(32).toString("hex");
+            
+            const codigo = (crypto.randomInt(0, 1000000) + 1000000).toString().slice(1);
 
-            // Salva temporário
-            resetTokens[email] = token;
+            const expira = Date.now() + CODE_EXPIRATION_MINUTES * 60 * 1000;
 
-            const link = `http://localhost:3001/resetar-senha?email=${email}&token=${token}`;
+            resetTokens.set(email, { codigo, expira, validated: false });
 
             // Configura nodemailer
             const transporter = nodemailer.createTransport({
-                service: "gmail",
+                service: process.env.MAIL_SERVICE,
                 auth: {
-                    user: "SEU_EMAIL@gmail.com",
-                    pass: "SENHA_DO_APP"
+                    user: process.env.MAIL_USER,
+                    pass: process.env.MAIL_PASS
                 }
             });
 
             await transporter.sendMail({
                 from: "Seu App <no-reply@seuapp.com>",
                 to: email,
-                subject: "Recuperação de senha",
+                subject: "Código de Recuperação",
                 html: `
-                <h2>Recuperar Senha</h2>
-                <p>Clique no link abaixo para redefinir sua senha:</p>
-                <a href="${link}">${link}</a>
+                <h2>Seu código de recuperação</h2>
+                <p>Use o código abaixo para redefinir sua senha:</p>
+                <h1 style="font-size: 32px;">${codigo}</h1>
+                <p>O código expira em ${CODE_EXPIRATION_MINUTES} minutos.</p>
                 `
             });
 
-            res.json({ message: "Um link de recuperação foi enviado ao seu e-mail." });
+            res.json({ message: "Código enviado para o seu e-mail." });
 
         } catch (error) {
             console.error(error);
@@ -181,22 +182,47 @@ module.exports = {
         }
     },
 
-    //Resetar senha 
+    async validarCodigo(req, res) {
+        const { email, codigo } = req.body;
 
-    async resetarSenha(req, res) {
-        const { email, token, novaSenha } = req.body;
-
-        if (!email || !token || !novaSenha) {
+        if (!email || !codigo) {
             return res.status(400).json({ message: "Dados incompletos." });
         }
 
-        // Confere token
-        if (resetTokens[email] !== token) {
-            return res.status(400).json({ message: "Token inválido ou expirado." });
+        const registro = resetTokens.get(email);
+
+        if (!registro) {
+            return res.status(400).json({ message: "Nenhum código gerado para este e-mail." });
+        }
+
+        if (Date.now() > registro.expira) {
+            resetTokens.delete(email);
+            return res.status(400).json({ message: "Código expirado." });
+        }
+
+        if (registro.codigo !== codigo) {
+            return res.status(400).json({ message: "Código incorreto." });
+        }
+
+        resetTokens.set(email, { ...registro, validated: true });
+
+        return res.json({ message: "Código validado com sucesso." });
+    },
+
+    async resetarSenha(req, res) {
+        const { email, novaSenha } = req.body;
+
+        if (!email || !novaSenha) {
+            return res.status(400).json({ message: "Dados incompletos." });
+        }
+
+        const registro = resetTokens.get(email);
+
+        if (!registro || !registro.validated) {
+            return res.status(400).json({ message: "Código não validado." });
         }
 
         try {
-            // Atualiza a senha no banco
             const usuario = await Usuario.findOne({ email });
 
             if (!usuario) {
@@ -206,10 +232,10 @@ module.exports = {
             usuario.senha = novaSenha;
             await usuario.save();
 
-            // Remove token usado
-            delete resetTokens[email];
+            resetTokens.delete(email);
 
-            res.json({ message: "Senha redefinida com sucesso!" });
+            return res.json({ message: "Senha redefinida com sucesso!" });
+
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: "Erro ao redefinir senha." });
