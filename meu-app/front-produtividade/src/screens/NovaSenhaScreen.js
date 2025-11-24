@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api from "../api/api";
 
+
 export default function NovaSenhaScreen({ route, navigation }) {
   const { email } = route.params;  
 
@@ -27,7 +28,7 @@ export default function NovaSenhaScreen({ route, navigation }) {
 
       Alert.alert("Sucesso", "Senha alterada com sucesso!");
 
-      navigation.navigate("Login");
+      router.push("/home")
 
     } catch (error) {
       console.error(error);
@@ -62,7 +63,7 @@ export default function NovaSenhaScreen({ route, navigation }) {
 
       <TouchableOpacity
         style={[styles.button, { backgroundColor: "#555" }]}
-        onPress={() => navigation.goBack()}
+        onPress={() => router.push("/")}
       >
         <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>

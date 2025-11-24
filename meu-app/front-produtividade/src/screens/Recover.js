@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api from "../api/api";
+import { router, useRouter } from "expo-router"; 
 
 export default function RecoverScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -45,9 +46,10 @@ export default function RecoverScreen({ navigation }) {
       navigation.navigate("NovaSenhaScreen", { email });
 
     } catch (error) {
-      console.error(error);
-      const msg = error.response?.data?.message || "Código inválido.";
-      Alert.alert("Erro", msg);
+      
+    console.log("ERRO AO VALIDAR >>", error.response?.data);
+    console.log("STATUS >>", error.response?.status);
+    console.log("BODY ENVIADO >>", { email, codigo });
     }
   }
 
@@ -87,7 +89,7 @@ export default function RecoverScreen({ navigation }) {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Home")}
+        onPress={() => router.push("/")}
       >
         <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>

@@ -3,12 +3,13 @@ const jwt = require('jsonwebtoken');
 const authMiddleware = require('../middleware/auth');
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const resetTokens = require("../helpers/resetTokens");
 
-// ARMAZENAMENTO TEMPORÁRIO DOS CÓDIGOS
-const resetTokens = new Map();
 const CODE_EXPIRATION_MINUTES = parseInt(process.env.CODE_EXPIRATION_MINUTES || '10', 10);
+console.log("RESET TOKENS DO CONTROLLER:", resetTokens);
 
 module.exports = {
+    
 
     async criar(req, res){
         try{
@@ -133,53 +134,58 @@ module.exports = {
     },
 
     async recuperarSenha(req, res) {
-    const { email } = req.body;
+        const { email } = req.body;
 
-    if (!email) {
-        return res.status(400).json({ message: "E-mail é obrigatório." });
-    }
-
-    try {
-        const usuario = await Usuario.findOne({ email });
-
-        if (!usuario) {
-            return res.status(404).json({ message: "Usuário não encontrado." });
+        if (!email) {
+            return res.status(400).json({ message: "E-mail é obrigatório." });
         }
 
-        // Gera código de 6 dígitos
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+        try {
+            const usuario = await Usuario.findOne({ email });
 
-        // Salva temporário no resetTokens
-        resetTokens[email] = codigo;
-
-        
-        const transporter = nodemailer.createTransport({
-            service: process.env.MAIL_SERVICE,
-            auth: {
-                user: process.env.MAIL_USER,
-                pass: process.env.MAIL_PASS
+            if (!usuario) {
+                return res.status(404).json({ message: "Usuário não encontrado." });
             }
-        });
 
-        await transporter.sendMail({
-            from: "Projeto Mobile <no-reply@seuapp.com>",
-            to: email,
-            subject: "Código de recuperação de senha",
-            html: `
-                <h2>Recuperação de senha</h2>
-                <p>Use o código abaixo para redefinir sua senha:</p>
-                <h1 style="font-size: 32px;">${codigo}</h1>
-                <p>O código expira em alguns minutos.</p>
-            `
-        });
+            // Gera código de 6 dígitos
+            const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-        res.json({ message: "Código enviado para o e-mail informado." });
+            resetTokens.set(email, {
+                codigo,
+                expira: Date.now() + CODE_EXPIRATION_MINUTES * 60000,
+                validated: false
+            });
+
+            console.log("Código salvo:", resetTokens.get(email)); // DEBUG IMPORTANTE!!!
+
+            const transporter = nodemailer.createTransport({
+                service: process.env.MAIL_SERVICE,
+                auth: {
+                    user: process.env.MAIL_USER,
+                    pass: process.env.MAIL_PASS
+                }
+            });
+
+            await transporter.sendMail({
+                from: "Projeto Mobile <no-reply@seuapp.com>",
+                to: email,
+                subject: "Código de recuperação de senha",
+                html: `
+                    <h2>Recuperação de senha</h2>
+                    <p>Use o código abaixo para redefinir sua senha:</p>
+                    <h1>${codigo}</h1>
+                    <p>O código expira em 10 minutos.</p>
+                `
+            });
+
+            return res.json({ message: "Código enviado para o e-mail informado." });
 
         } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Erro ao enviar e-mail." });
+            console.error(error);
+            res.status(500).json({ message: "Erro ao enviar código." });
         }
     },
+
 
     async validarCodigo(req, res) {
         const { email, codigo } = req.body;
@@ -190,6 +196,8 @@ module.exports = {
 
         const registro = resetTokens.get(email);
 
+        console.log("🔎 Registro encontrado:", registro); // DEBUG
+
         if (!registro) {
             return res.status(400).json({ message: "Nenhum código gerado para este e-mail." });
         }
@@ -199,14 +207,16 @@ module.exports = {
             return res.status(400).json({ message: "Código expirado." });
         }
 
-        if (registro.codigo !== codigo) {
+        if (registro.codigo !== codigo.toString()) {
             return res.status(400).json({ message: "Código incorreto." });
         }
 
+        // Marca como validado
         resetTokens.set(email, { ...registro, validated: true });
 
         return res.json({ message: "Código validado com sucesso." });
     },
+
 
     async resetarSenha(req, res) {
         const { email, novaSenha } = req.body;
@@ -240,4 +250,5 @@ module.exports = {
             res.status(500).json({ message: "Erro ao redefinir senha." });
         }
     }
+
 };

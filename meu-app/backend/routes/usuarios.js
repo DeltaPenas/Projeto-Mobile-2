@@ -4,14 +4,13 @@ const usuarioController = require('../controller/usuarioController');
 const auth = require('../middleware/auth');
 
 router.post('/', usuarioController.criar);
-router.get('/',auth, usuarioController.listar);
-router.get('/me', auth,usuarioController.getDadosUsuario);
-router.get('/:id',auth, usuarioController.buscarPorId);
-router.put('/:id',auth, usuarioController.atualizar);
-router.delete('/:id',auth, usuarioController.deletar);
+router.get('/', auth, usuarioController.listar);
+router.get('/me', auth, usuarioController.getDadosUsuario);
+router.get('/:id', auth, usuarioController.buscarPorId);
+router.put('/:id', auth, usuarioController.atualizar);
+router.delete('/:id', auth, usuarioController.deletar);
 router.post('/login', usuarioController.login);
 router.post("/recuperar", usuarioController.recuperarSenha);
-router.post("/recuperar-senha", usuarioController.recuperarSenha);
 router.post("/validar-codigo", usuarioController.validarCodigo);
 router.post("/resetar-senha", usuarioController.resetarSenha);
 
