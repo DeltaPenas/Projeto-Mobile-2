@@ -156,7 +156,7 @@ module.exports = {
                 validated: false
             });
 
-            console.log("Código salvo:", resetTokens.get(email)); // DEBUG IMPORTANTE!!!
+            console.log("Código salvo:", resetTokens.get(email)); 
 
             const transporter = nodemailer.createTransport({
                 service: process.env.MAIL_SERVICE,

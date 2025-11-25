@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import api from '../api/api'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+
+import { useNavigation } from '@react-navigation/native'; 
 
 export default function ProjetosScreen() {
     const [projetos, setProjetos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userName, setUserName] = useState("Usuário"); 
-    const router = useRouter();
+    
+    
+    const navigation = useNavigation();
 
     useEffect(() => {
         carregarDadosIniciais(); 
@@ -38,7 +41,13 @@ export default function ProjetosScreen() {
                 Alert.alert("Sessão Expirada", "Sua sessão expirou. Faça login novamente.");
                 await AsyncStorage.removeItem('userToken');
                 await AsyncStorage.removeItem('userName'); 
-                router.replace('/'); 
+                
+                
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                });
+                
             } else {
                  Alert.alert("Erro", "Não foi possível carregar os projetos.");
             }
@@ -49,9 +58,15 @@ export default function ProjetosScreen() {
     
     
     async function handleLogout() {
+        // Limpa os dados de sessão
         await AsyncStorage.removeItem('userToken');
         await AsyncStorage.removeItem('userName');
-        router.replace('/'); 
+        
+        // 🎯 CORREÇÃO: Usamos navigation.reset para ir para 'Login'
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+        });
     }
 
 

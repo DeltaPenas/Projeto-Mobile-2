@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api from "../api/api";
-import { router, useRouter } from "expo-router"; 
+
 
 export default function RecoverScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -42,8 +42,10 @@ export default function RecoverScreen({ navigation }) {
       });
 
       Alert.alert("Sucesso", "Código validado!");
-
-      navigation.navigate("NovaSenhaScreen", { email });
+      
+      
+      navigation.navigate("NovaSenha", { email });
+      
 
     } catch (error) {
       

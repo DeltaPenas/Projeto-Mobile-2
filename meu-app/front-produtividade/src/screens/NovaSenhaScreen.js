@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api from "../api/api";
 
-
-export default function NovaSenhaScreen({ route, navigation }) {
-  const { email } = route.params;  
+export default function NovaSenhaScreen({ navigation, route }) {
+  const { email } = route.params;
 
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -21,14 +20,10 @@ export default function NovaSenhaScreen({ route, navigation }) {
     }
 
     try {
-      const response = await api.post("/usuarios/resetar-senha", {
-        email,
-        novaSenha
-      });
+      await api.post("/usuarios/resetar-senha", { email, novaSenha });
 
       Alert.alert("Sucesso", "Senha alterada com sucesso!");
-
-      router.push("/home")
+      navigation.replace("Home");
 
     } catch (error) {
       console.error(error);
@@ -63,7 +58,7 @@ export default function NovaSenhaScreen({ route, navigation }) {
 
       <TouchableOpacity
         style={[styles.button, { backgroundColor: "#555" }]}
-        onPress={() => router.push("/")}
+        onPress={() => navigation.goBack()}
       >
         <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>
@@ -72,18 +67,8 @@ export default function NovaSenhaScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
+  container: { flex: 1, padding: 24, justifyContent: "center", backgroundColor: "#fff" },
+  title: { fontSize: 26, fontWeight: "bold", textAlign: "center", marginBottom: 20 },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
