@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../api/api";
-import { CommonActions, useNavigation } from '@react-navigation/native'; 
+import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
@@ -11,31 +11,37 @@ export default function LoginScreen() {
   const [senha, setSenha] = useState("");
 
   async function handleLogin() {
+    
+    
+    if (!email.trim() || !senha.trim()) {
+      return Alert.alert("Campos obrigatórios", "Preencha seu email e sua senha.");
+    }
+
     try {
       const response = await api.post("/usuarios/login", {
         email,
         senha,
       });
 
-      const { token } = response.data;
+      const { token, usuario } = response.data;
+
       await AsyncStorage.setItem("userToken", token);
+      await AsyncStorage.setItem("userName", usuario.nome);
 
-      const userResponse = await api.get("/usuarios/me");
-      const userName = userResponse.data.nome;
-
-      await AsyncStorage.setItem("userName", userName);
-
-      
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Home' }], 
+        routes: [{ name: 'Home' }],
       });
 
     } catch (error) {
-      console.error(error);
+      console.error("LOGIN ERROR:", error.response?.data || error.message);
+
+      
       const mensagem =
+        error.response?.data?.erro ||  
         error.response?.data?.message ||
         "Erro ao conectar com o servidor";
+
       Alert.alert("Erro no Login", mensagem);
     }
   }
@@ -65,12 +71,10 @@ export default function LoginScreen() {
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-      {/* Criar conta */}
       <TouchableOpacity onPress={() => navigation.navigate("Register")}>
         <Text style={styles.link}>Criar conta</Text>
       </TouchableOpacity>
 
-      {/* Recuperar senha */}
       <TouchableOpacity onPress={() => navigation.navigate("Recover")}>
         <Text style={styles.link}>Recuperar Senha</Text>
       </TouchableOpacity>
@@ -79,7 +83,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: "center", backgroundColor: "#ffffffff" },
+  container: { flex: 1, padding: 24, justifyContent: "center", backgroundColor: "#ffffff" },
   title: { fontSize: 28, fontWeight: "bold", marginBottom: 24, textAlign: "center" },
   input: {
     borderWidth: 1,

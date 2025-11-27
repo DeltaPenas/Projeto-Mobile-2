@@ -361,9 +361,9 @@ export default function ProjetosScreen() {
             </Modal>
 
 
-            {/* -------- BOTÃO SAIR -------- */}
-            <TouchableOpacity onPress={logout} style={styles.backButton}>
-                <Text style={styles.backButtonText}>Sair</Text>
+           
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <Text style={styles.backButtonText}>Voltar</Text>
             </TouchableOpacity>
 
         </View>
