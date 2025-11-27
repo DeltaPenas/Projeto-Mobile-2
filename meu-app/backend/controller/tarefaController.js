@@ -8,7 +8,6 @@ module.exports = {
             const usuarioId = req.usuarioId;
             const projetoId = req.body.projetoId;
 
-            
             const projeto = await Projeto.findById(projetoId);
             if (!projeto) {
                 return res.status(404).json({ erro: "Projeto não encontrado" });
@@ -22,7 +21,8 @@ module.exports = {
                 nome: req.body.nome,
                 descricao: req.body.descricao,
                 concluido: req.body.concluido || false,
-                projeto: projetoId
+                projeto: projetoId,
+                usuario: usuarioId
             });
 
             return res.status(201).json(tarefa);
@@ -36,14 +36,12 @@ module.exports = {
     async listar(req, res) {
         try {
             const usuarioId = req.usuarioId;
-            const filtro = {};
+            const filtro = { usuario: usuarioId }; 
 
-            
             if (req.query.concluido !== undefined) {
                 filtro.concluido = req.query.concluido === "true";
             }
 
-            
             if (req.query.projetoId) {
                 const projeto = await Projeto.findById(req.query.projetoId);
 
@@ -82,8 +80,10 @@ module.exports = {
                 return res.status(403).json({ erro: "Acesso negado" });
             }
 
-            const tarefas = await Tarefa.find({ projeto: projetoId })
-                .sort({ createdAt: -1 });
+            const tarefas = await Tarefa.find({
+                projeto: projetoId,
+                usuario: usuarioId  
+            }).sort({ createdAt: -1 });
 
             res.json(tarefas);
 
@@ -190,6 +190,23 @@ module.exports = {
         } catch (error) {
             console.error(error);
             return res.status(500).json({ erro: "Erro ao concluir tarefa" });
+        }
+    },
+
+    async listarPendentesPorUsuario(req, res) {
+        try {
+            const usuarioId = req.usuarioId; 
+
+            const tarefas = await Tarefa.find({ 
+                usuario: usuarioId, 
+                concluido: false 
+            }).populate('projeto', 'nome');
+
+            return res.json(tarefas);
+
+        } catch (error) {
+            console.error("Erro no Controller de tarefas:", error);
+            return res.status(500).json({ error: 'Erro ao buscar tarefas do usuário.' });
         }
     }
 };

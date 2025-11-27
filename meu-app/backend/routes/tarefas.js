@@ -10,6 +10,7 @@ router.get('/:id', auth, tarefaController.buscarPorId);
 router.put('/:id', auth, tarefaController.atualizar);
 router.put('/concluir/:id', auth, tarefaController.concluir);
 router.delete('/:id', auth, tarefaController.deletar);
+router.get('/usuario', auth, tarefaController.listarPendentesPorUsuario);
 
 
 module.exports = router;

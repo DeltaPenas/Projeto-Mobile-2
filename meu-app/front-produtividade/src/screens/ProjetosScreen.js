@@ -20,7 +20,7 @@ export default function ProjetosScreen() {
     const [loading, setLoading] = useState(true);
     const [userName, setUserName] = useState("Usuário");
 
-    // Modal
+   
     const [showModal, setShowModal] = useState(false);
     const [newProjectName, setNewProjectName] = useState('');
     const [newProjectDescription, setNewProjectDescription] = useState('');
@@ -29,13 +29,13 @@ export default function ProjetosScreen() {
 
 
 
-    // Carregamento inicial
+    
 
     useEffect(() => {
         carregarDadosIniciais();
     }, []);
 
-    // Atualiza sempre que voltar para a tela
+    
     useFocusEffect(
         useCallback(() => {
             carregarTarefasPendentes();
@@ -60,13 +60,15 @@ export default function ProjetosScreen() {
 
     
     async function carregarTarefasPendentes() {
-        try {
-            const response = await api.get('tarefas?concluido=false');
-            setTarefasPendentes(response.data);
-        } catch (error) {
-            console.error("Erro ao carregar tarefas:", error);
-        }
+    try {
+        
+        const response = await api.get('tarefas?concluido=false');
+        
+        setTarefasPendentes(response.data);
+    } catch (error) {
+        console.error("Erro ao carregar tarefas:", error);
     }
+}
 
     async function carregarProjetos() {
         try {
@@ -77,7 +79,7 @@ export default function ProjetosScreen() {
             setProjetosConcluidos(all.filter(p => p.concluido));
 
         } catch (error) {
-            // Se o token expirou → volta para o login
+            
             if (error.response?.status === 401) {
                 await AsyncStorage.multiRemove(['userToken', 'userName']);
                 navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
