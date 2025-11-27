@@ -91,7 +91,7 @@ export default function RecoverScreen({ navigation }) {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push("/")}
+        onPress={() => navigation.goBack()}
       >
         <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>

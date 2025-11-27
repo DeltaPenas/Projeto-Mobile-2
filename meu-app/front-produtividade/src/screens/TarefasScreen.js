@@ -5,8 +5,10 @@ import {
 } from 'react-native';
 import api from '../api/api'; 
 import { useRoute } from '@react-navigation/native'; 
+import { CommonActions, useNavigation } from '@react-navigation/native'; 
 
 export default function TarefasScreen() {
+    const navigation = useNavigation();
     const route = useRoute();
     
     const { projetoId, projetoName } = route.params;
@@ -107,7 +109,7 @@ export default function TarefasScreen() {
             <TouchableOpacity onPress={() => setShowModal(true)} style={styles.createButton}>
                  <Text style={styles.createButtonText}>+ Adicionar Nova Tarefa</Text>
             </TouchableOpacity>
-            
+
             {tarefas.length === 0 ? (
                 <Text style={styles.emptyText}>Nenhuma tarefa neste projeto.</Text>
             ) : (
@@ -118,6 +120,15 @@ export default function TarefasScreen() {
                     contentContainerStyle={{ paddingBottom: 20 }}
                 />
             )}
+
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.goBack()}
+            >
+                <Text style={styles.backButtonText}>← Voltar aos Projetos</Text>
+            </TouchableOpacity>
+
+            
 
             
             <Modal
@@ -171,7 +182,7 @@ export default function TarefasScreen() {
 
 
 const styles = StyleSheet.create({
-    container: { flex: 1, paddingTop: 20, paddingHorizontal: 20, backgroundColor: '#f4f4f4' },
+    container: { flex: 1, paddingHorizontal: 20, backgroundColor: '#f4f4f4' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     
     projectTitle: { fontSize: 16, color: '#555', marginTop: 10 },
@@ -185,6 +196,23 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     createButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    backButton: {
+        position: 'absolute', 
+        bottom: 0,            
+        left: 0,
+        right: 0,
+        backgroundColor: '#dc3545', 
+        paddingVertical: 15,
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: '#ddd',
+        paddingHorizontal: 20, 
+    },
+    backButtonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
