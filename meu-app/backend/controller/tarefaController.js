@@ -16,6 +16,9 @@ module.exports = {
             if (projeto.usuario.toString() !== usuarioId) {
                 return res.status(403).json({ erro: "Acesso negado" });
             }
+            if(projeto.concluido){
+                return res.status(403).json({ erro: "Uma tarefa não pode ser adicionada a um projeto concluído" });
+            }
 
             const tarefa = await Tarefa.create({
                 nome: req.body.nome,

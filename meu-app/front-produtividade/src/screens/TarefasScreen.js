@@ -47,6 +47,7 @@ export default function TarefasScreen() {
             Alert.alert("Erro", "O nome da tarefa não pode estar vazio.");
             return;
         }
+        
 
         try {
             

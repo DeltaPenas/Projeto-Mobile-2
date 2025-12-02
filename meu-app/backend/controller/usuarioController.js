@@ -221,6 +221,7 @@ module.exports = {
     async resetarSenha(req, res) {
         const { email, novaSenha } = req.body;
 
+        
         if (!email || !novaSenha) {
             return res.status(400).json({ message: "Dados incompletos." });
         }
